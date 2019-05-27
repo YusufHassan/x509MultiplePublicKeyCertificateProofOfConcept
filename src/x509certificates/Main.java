@@ -8,6 +8,6 @@ public class Main {
 		X509CertificateGenerator generator = new X509CertificateGenerator();
 		generator.generateX509Certificate("Sweden","Primekey","PKI","SecureCAMigration","SecureCAMigration","john.smith@gmail.com"
 				,"http://www.somewebsite.com/ca.cer","http://ocsp.somewebsite.com");
-		X509CertificateGenerator.testVerificationOfMultipleKeyCertificatesSPHINCS(2);
+		X509CertificateGenerator.verificationOfMultipleKeyCertificateSphincs();
 	}
 }

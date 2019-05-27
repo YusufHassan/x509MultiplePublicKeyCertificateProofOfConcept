@@ -492,8 +492,8 @@ public class X509CertificateGenerator {
 		certificateFromFilesystem =	(DLSequence) certificateFromFilesystem.fromByteArray(certificateBytes).toASN1Primitive();
 		return certificateFromFilesystem;
 	}
-	
-	public static void testVerificationOfMultipleKeyCertificatesSPHINCS(int amountOfIterations) throws Exception {
+
+	public static void verificationOfMultipleKeyCertificateSphincs() throws Exception {
 		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 		DLSequence certificateFromFilesystem = readCertificateFromFilesystem();
 		FileInputStream	fileInputStream = new FileInputStream(new File("rsaCaPublicKey"));
