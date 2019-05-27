@@ -2,43 +2,31 @@ package x509certificates;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
-import org.bouncycastle.asn1.ASN1BitString;
 import org.bouncycastle.asn1.ASN1Boolean;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.ASN1TaggedObjectParser;
 import org.bouncycastle.asn1.DERBitString;
-import org.bouncycastle.asn1.DERBoolean;
 import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DERNull;
-import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERPrintableString;
 import org.bouncycastle.asn1.DERSequence;
@@ -46,36 +34,15 @@ import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.asn1.DERSet;
 import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.DERUTCTime;
-import org.bouncycastle.asn1.DLSequence;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.KeyGenerationParameters;
-import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.digests.SHA256Digest;
-import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.digests.SHA512tDigest;
 import org.bouncycastle.pqc.crypto.MessageSigner;
-import org.bouncycastle.pqc.crypto.newhope.NHKeyPairGenerator;
-import org.bouncycastle.pqc.crypto.newhope.NHPrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.newhope.NHPublicKeyParameters;
-import org.bouncycastle.pqc.crypto.qtesla.QTESLAKeyGenerationParameters;
-import org.bouncycastle.pqc.crypto.qtesla.QTESLAKeyPairGenerator;
-import org.bouncycastle.pqc.crypto.qtesla.QTESLAPrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.qtesla.QTESLAPublicKeyParameters;
-import org.bouncycastle.pqc.crypto.qtesla.QTESLASecurityCategory;
-import org.bouncycastle.pqc.crypto.qtesla.QTESLASigner;
-import org.bouncycastle.pqc.crypto.rainbow.RainbowKeyGenerationParameters;
-import org.bouncycastle.pqc.crypto.rainbow.RainbowKeyPairGenerator;
-import org.bouncycastle.pqc.crypto.rainbow.RainbowParameters;
-import org.bouncycastle.pqc.crypto.rainbow.RainbowPrivateKeyParameters;
-import org.bouncycastle.pqc.crypto.rainbow.RainbowPublicKeyParameters;
-import org.bouncycastle.pqc.crypto.sphincs.SPHINCS256KeyGenerationParameters;
-import org.bouncycastle.pqc.crypto.sphincs.SPHINCS256KeyPairGenerator;
+
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCS256Signer;
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCSPrivateKeyParameters;
 import org.bouncycastle.pqc.crypto.sphincs.SPHINCSPublicKeyParameters;
-import org.bouncycastle.pqc.jcajce.spec.RainbowParameterSpec;
 import org.bouncycastle.util.Arrays.Iterator;
 
 public class X509CertificateGenerator {
@@ -83,7 +50,7 @@ public class X509CertificateGenerator {
 	private static PrivateKey rsaCaPrivateKey = null;
 	private static SPHINCSPrivateKeyParameters sphincsCaPrivateKey = null;
 	private static SPHINCSPublicKeyParameters sphincsCaPublicKey = null;
-    public static final String SIGNATURE_ALGORITHM_IDENTIFIER_OID = "1.2.840.113549.1.1.11";
+	public static final String SIGNATURE_ALGORITHM_IDENTIFIER_OID = "1.2.840.113549.1.1.11";
 	public static final String COUNTRY_NAME_OID = "2.5.4.6";
 	public static final String ORGANIZATION_NAME_OID = "2.5.4.10";
 	public static final String ORGANIZATIONAL_UNIT_NAME_OID = "2.5.4.11";
@@ -95,11 +62,11 @@ public class X509CertificateGenerator {
 	public static final String SUBJECT_ALTERNATIVE_NAME_OID = "2.5.29.17";
 	public static final String CA_ISSUERS_OID = "1.3.6.1.5.5.7.48.2";
 	public static final String OSCP_OID = "1.3.6.1.5.5.7.48.1";
-    public static final String AUTHORITY_ACCESS_INFORMATION_OID = "1.3.6.1.5.5.7.1.1";
-    public static final String ALTERNATIVE_SIGNATURE_VALUE_OID = "1.3.6.1.4.1.22408.1.1.4.3";
-    public static final String ALTERNATIVE_ALGORITHM_IDENTIFIER_OID = "1.3.6.1.4.1.22408.1.1.4.4";
-    public static final String ALTERNATIVE_ALGORITHM_IDENTIFIER_EXTENSION_OID = "1.3.6.1.4.1.22408.1.1.4.2";
-    public static final String ALTERNTIVE_SUBJECT_KEY_INFO = "1.3.6.1.4.1.22408.1.1.4.1";
+	public static final String AUTHORITY_ACCESS_INFORMATION_OID = "1.3.6.1.5.5.7.1.1";
+	public static final String ALTERNATIVE_SIGNATURE_VALUE_OID = "1.3.6.1.4.1.22408.1.1.4.3";
+	public static final String ALTERNATIVE_ALGORITHM_IDENTIFIER_OID = "1.3.6.1.4.1.22408.1.1.4.4";
+	public static final String ALTERNATIVE_ALGORITHM_IDENTIFIER_EXTENSION_OID = "1.3.6.1.4.1.22408.1.1.4.2";
+	public static final String ALTERNTIVE_SUBJECT_KEY_INFO = "1.3.6.1.4.1.22408.1.1.4.1";
 	
 	
 	
