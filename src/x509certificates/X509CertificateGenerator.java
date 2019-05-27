@@ -416,7 +416,7 @@ public class X509CertificateGenerator {
 		System.out.println("Verification of conventional signature is successful!");
 	}
 	
-	public static void verifyAlternativeSignatureSPHINCS(DLSequence certificateFromFilesystem,SPHINCSPublicKeyParameters pk) throws Exception {
+	public static void verifyAlternativeSignatureSphincs(DLSequence certificateFromFilesystem,SPHINCSPublicKeyParameters pk) throws Exception {
 		DLSequence tbsCertificate = (DLSequence) certificateFromFilesystem.getObjectAt(0);
 		DERTaggedObject extenstionsTaggedObject = (DERTaggedObject) tbsCertificate.getObjectAt(7);
 		DERSequence parse =  (DERSequence) extenstionsTaggedObject.getObjectParser(3, true);
@@ -441,6 +441,8 @@ public class X509CertificateGenerator {
 		Object possibleObject = null;
 		DERTaggedObject taggedObject = null;
 		DLSequence sequence = null;
+		//This part will iterate until it finds a specific value then it will extract parts of the preTbsCertificate. When it
+		// is done iterating a preTBSCertificate will be created.
 		while(tbsCertificateIterator.hasNext()) {
 			possibleObject = tbsCertificateIterator.next();
 			if(!(possibleObject instanceof DERTaggedObject)) {
@@ -466,6 +468,7 @@ public class X509CertificateGenerator {
         
 		MessageSigner sphincsSigner = new SPHINCS256Signer(new SHA512tDigest(256), new SHA512Digest());
 		sphincsSigner.init(false, pk);
+		//This is a weird one-liner it seems like there is some type of header, therefore I shave of the first byte then it works.
 		if(!sphincsSigner.verifySignature(preTBSCertificateBytes, Arrays.copyOfRange(new DERBitString(alternativeSignature).getBytes(),9,new DERBitString(alternativeSignature).getBytes().length)))
 			throw new Exception("Verification failed");
 		System.out.println("Verification of alternative signature is sucessful!");
@@ -508,7 +511,7 @@ public class X509CertificateGenerator {
 		objectInputStream.close();		
 		verifyConventionalSignature(certificateFromFilesystem,pubKey);
 		caPublicKey = new SPHINCSPublicKeyParameters(bufferForAltPubKey);
-		verifyAlternativeSignatureSPHINCS(certificateFromFilesystem, caPublicKey);
+		verifyAlternativeSignatureSphincs(certificateFromFilesystem, caPublicKey);
 	
 	}
 	
